@@ -27,24 +27,40 @@ app = Flask(__name__)
 
 
 @app.route('/repair', methods=['POST'])
+@app.route('/repair/', methods=['POST'])
 def repair_watch_from_url():
     try:
-        # Accept from args, form, or JSON
         data = request.get_json(silent=True) or {}
+        print(data)
+
+        raw_body = request.get_data().decode('utf-8')
+        print(raw_body)
+
         watch_url = (
             request.args.get("watch_url") or
             request.form.get("watch_url") or
             data.get("watch_url", "")
         )
 
-        if not watch_url:
-            return jsonify({"status": "error", "message": "Missing watch_url"}), 400
+        match = None
 
-        match = re.search(r'/edit/([a-f0-9-]+)', watch_url)
+        # Try extracting from watch_url if available
+        if watch_url:
+            match = re.search(r'/edit/([a-f0-9-]+)', watch_url)
+
+        # If not found in watch_url, try raw body
         if not match:
-            return jsonify({"status": "error", "message": "Invalid watch_url format"}), 400
+            match = re.search(r'/edit/([a-f0-9-]+)', raw_body)
+
+        # As absolute fallback, find a UUID pattern anywhere
+        if not match:
+            match = re.search(r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', raw_body)
+
+        if not match:
+            return jsonify({"status": "error", "message": "Missing or invalid watch identifier"}), 400
 
         watch_uuid = match.group(1)
+
         print(f"🔔 Received watch notification: {watch_uuid}")
 
         # Respond immediately
@@ -255,7 +271,7 @@ BOShtml > body > div.main > div.product-display > div.status > labelEOS
         "- DO NOT include classes or IDs that look like random hashes or auto-generated strings (e.g. '.x8h3f94')\n"
         "- Prefer more general selectors (e.g. use a parent or skip overly specific levels if needed).\n"
         "- Do not include any explanation, text, or formatting. Only the selector line with BOS and EOS.\n\n"
-        f"{simplified_html}\n"
+        f"{simplified_html[:3000]}\n"
         "CSS Selector:"
     )
 
@@ -336,4 +352,5 @@ def auto_repair_failed_watches():
 
 if __name__ == '__main__':
     print(f"Listening on {os.environ.get('PORT', 5000)}")
+    print(f"YO")
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
