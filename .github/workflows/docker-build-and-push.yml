@@ -28,7 +28,7 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/changepilote:latest .
+          docker build -f docker/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/changepilote:latest .
 
       # Push the Docker image to Docker Hub
       - name: Push Docker image
