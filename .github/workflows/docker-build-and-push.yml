@@ -24,8 +24,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f docker/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/changepilote:latest docker
+          docker build -f docker/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/changepilot:latest docker
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/changepilote:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/changepilot:latest
